@@ -97,7 +97,6 @@ plt.tight_layout(pad=0.5)
 
 
 
-
 """
 1 - signal, no osc
 4 - something at 0.06 Hz

@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['1_fluctuation_investivation\\2024-07-30_plot_measurement_test.py', '1_fluctuation_investivation\\2024-07-30_plot_mass_spectrum.py']
+recent_files = ['1_fluctuation_investivation\\2024-07-30_plot_measurement_test.py', '1_fluctuation_investivation\\2024-07-30_plot_mass_spectrum.py', '2_MCP_scans\\2024-08-05_plot_2D_scan.py']
 
 [main]
 version = 0.2.0

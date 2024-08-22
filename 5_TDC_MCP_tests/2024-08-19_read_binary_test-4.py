@@ -22,13 +22,13 @@ filepath_1 = data_folder + "\\" + file_1
 dict_data_channel = {}
 dict_data_sweep = {}
 
-
 dict_channel = {0:'Zero', 1:'Counter real/live time', 2:'Counter data?',
                 3:'Unused', 4:'Unused', 5:'Unused', 6:'START',
                 7:'Reserved', 8:'STOP_1', 9:'STOP_2', 10:'STOP_3',
                 11:'STOP_4', 12:'STOP_5', 13:'STOP_6', 14:'STOP_7',
                 15:'STOP_8'}
 dict_edge = {0:'RISING', 1:'FALLING'}
+
 
 
 with open(filepath_1, 'rb') as file:
@@ -51,7 +51,7 @@ with open(filepath_1, 'rb') as file:
             # Fill with zeros that were not printed explicitly (32 bits total)
             bits_data = bin(value)[2:].zfill(32)
             # print(bits_data)
-        
+            
             channel = int(bits_data[28:32], 2)
             channel_word = dict_channel[channel]
             
@@ -59,7 +59,7 @@ with open(filepath_1, 'rb') as file:
             edge_word = dict_edge[edge]
             
             time = int(bits_data[11:27], 2)
-            # Is time in units of time bins (8 * 80 ps) or 80 ps? Not sure yet
+            # Time is in units of the time bin size (bin size * 80 ps)
             
             sweep = int(bits_data[1:11], 2)
             

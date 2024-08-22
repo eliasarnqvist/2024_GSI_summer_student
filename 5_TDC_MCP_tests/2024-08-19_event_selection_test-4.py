@@ -54,7 +54,7 @@ ax2 = plt.subplot2grid((3, 2), (1, 0))
 ax3 = plt.subplot2grid((3, 2), (1, 1))
 ax4 = plt.subplot2grid((3, 2), (2, 0))
 ax5 = plt.subplot2grid((3, 2), (2, 1))
-number = 819
+number = 857
 data = []
 time = []
 for key, value in loaded_dict[number].items():
@@ -66,6 +66,8 @@ for key, value in loaded_dict[number].items():
         else:
             data.append(-1)
 ax1.plot(time, data, ls='None', marker='o')
+data = []
+time = []
 for key, value in loaded_dict[number].items():
     if value['ch_w'] == 'STOP_2':
         this_time = value['time']
@@ -75,6 +77,8 @@ for key, value in loaded_dict[number].items():
         else:
             data.append(-1)
 ax2.plot(time, data, ls='None', marker='o')
+data = []
+time = []
 for key, value in loaded_dict[number].items():
     if value['ch_w'] == 'STOP_3':
         this_time = value['time']
@@ -84,6 +88,8 @@ for key, value in loaded_dict[number].items():
         else:
             data.append(-1)
 ax3.plot(time, data, ls='None', marker='o')
+data = []
+time = []
 for key, value in loaded_dict[number].items():
     if value['ch_w'] == 'STOP_4':
         this_time = value['time']
@@ -93,6 +99,8 @@ for key, value in loaded_dict[number].items():
         else:
             data.append(-1)
 ax4.plot(time, data, ls='None', marker='o')
+data = []
+time = []
 for key, value in loaded_dict[number].items():
     if value['ch_w'] == 'STOP_5':
         this_time = value['time']

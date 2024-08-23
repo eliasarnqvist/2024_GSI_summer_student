@@ -249,19 +249,19 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
         elif event_dict['channel_w'] == 'STOP_5':
             vector_ch5.append(event_dict['time'])
 
-this_histo, edges = np.histogram(vector_ch1, bins=4096, range=(0, 4096*8))
+this_histo, edges = np.histogram(vector_ch1, bins=4096, range=(41497.6/0.08, 41497.6/0.08 + 4096*8))
 ax1.step(edges[:-1], this_histo, where='post')
 
-this_histo, edges = np.histogram(vector_ch2, bins=4096, range=(0, 4096*8))
+this_histo, edges = np.histogram(vector_ch2, bins=4096, range=(41497.6/0.08, 41497.6/0.08 + 4096*8))
 ax2.step(edges[:-1], this_histo, where='post')
 
-this_histo, edges = np.histogram(vector_ch3, bins=4096, range=(0, 4096*8))
+this_histo, edges = np.histogram(vector_ch3, bins=4096, range=(41497.6/0.08, 41497.6/0.08 + 4096*8))
 ax3.step(edges[:-1], this_histo, where='post')
 
-this_histo, edges = np.histogram(vector_ch4, bins=4096, range=(0, 4096*8))
+this_histo, edges = np.histogram(vector_ch4, bins=4096, range=(41497.6/0.08, 41497.6/0.08 + 4096*8))
 ax4.step(edges[:-1], this_histo, where='post')
 
-this_histo, edges = np.histogram(vector_ch5, bins=4096, range=(0, 4096*8))
+this_histo, edges = np.histogram(vector_ch5, bins=4096, range=(41497.6/0.08, 41497.6/0.08 + 4096*8))
 ax5.step(edges[:-1], this_histo, where='post')
 
 plt.tight_layout(pad=0.5)

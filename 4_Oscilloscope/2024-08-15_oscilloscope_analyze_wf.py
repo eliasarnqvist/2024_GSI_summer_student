@@ -30,9 +30,16 @@ inch_to_mm = 25.4
 colors = plt.cm.tab10
 
 fig, ax = plt.subplots(figsize=(110/inch_to_mm,70/inch_to_mm))
-ax.plot(df_1['t'], df_1['V1'])
-ax.plot(df_1['t'], df_1['V2'])
-ax.set_xlim([-2e-6, 4e-6])
+ax.plot(df_1['t']*1e6, df_1['V1'], label='A')
+ax.plot(df_1['t']*1e6, df_1['V2'], label='E')
+ax.set_xlim([-1, 3])
+ax.set_xlabel('Time (us)')
+ax.set_ylabel('Voltage (V)')
+ax.legend(frameon=False)
 plt.tight_layout(pad=0.5)
+
+save_name = 'oscilloscope_preamp_A_E'
+plt.savefig(f'figures\\{save_name}.jpg', dpi=300)
+plt.savefig(f'figures\\{save_name}.pdf')
 
 

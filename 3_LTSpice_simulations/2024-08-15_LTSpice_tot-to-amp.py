@@ -205,14 +205,17 @@ for key, value in data_dict.items():
         xx_surrogate.append(x)
         yy_surrogate.append(y)
 
-def surrogate_function(ToT, a, b, c, d, e):
+def surrogate_function(ToT, a, b, c, d):
     
     # amplitude = a / (ToT - b) + c + np.exp(-ToT)
-    amplitude = [a / (x - b) + c + d / (x - e) for x in ToT]
+    amplitude = [a / (x - b) + c + d / (x - b)**2 for x in ToT]
     return amplitude
 
-guess = [-500, 1000, 0, 500, 1000]
+guess = [-500, 1000, 1, 100]
 popt, pcov = curve_fit(surrogate_function, xx_surrogate, yy_surrogate, p0=guess)
+
+print('a/(x-b) + c + d/(x-b)**2')
+print(popt)
 
 # =============================================================================
 # Plot

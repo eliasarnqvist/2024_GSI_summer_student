@@ -11,6 +11,7 @@ import matplotlib.colors as mcolors
 import struct
 import pickle
 from scipy.optimize import curve_fit
+import matplotlib.colors as mcolors
 
 # =============================================================================
 # Import data
@@ -131,7 +132,7 @@ for sweep_number in remove_these:
     dict_data_sweep.pop(sweep_number)
 
 # =============================================================================
-# Time over threshold (optionally time under threshold)
+# Time over threshold
 # =============================================================================
 
 dict_data_timing = {}
@@ -170,6 +171,40 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
     times = [time * 80 / 1e3 for time in times]
     
     dict_data_timing[measurement_index] = {'ToT':times}
+    
+    measurement_index += 1
+
+# =============================================================================
+# Time over threshold to amplitude
+# =============================================================================
+
+def surrogate_function(x, a, b, c, d):
+    amplitude = a / (x - b) + c + d / (x - b)**2
+    return amplitude
+surrogate_fit = [5.96462124e+00, 9.71566725e+02, 2.66135502e-01, 5.76897026e+04]
+
+def xy_position(a, b, c, d):
+    x = (b + c) / (a + b + c + d)
+    y = (a + b) / (a + b + c + d)
+    return [x, y]
+
+dict_data_amplitude = {}
+
+measurement_index = 0
+
+for sweep_number, sweep_dict in dict_data_timing.items():
+    amplitudes = [0, 0, 0, 0]
+    
+    i = 0
+    for ToT in sweep_dict['ToT'][1:]:
+        amplitude = surrogate_function(ToT, *surrogate_fit)
+        amplitudes[i] = amplitude
+        i += 1
+    
+    xy = xy_position(amplitudes[0], amplitudes[1], amplitudes[2], amplitudes[3])
+    
+    dict_data_amplitude[measurement_index] = {'amplitudes':amplitudes, 
+                                              'xy':xy}
     
     measurement_index += 1
 
@@ -269,12 +304,7 @@ plt.tight_layout(pad=0.5)
 
 # %%
 
-fig = plt.figure(figsize=(160/inch_to_mm, 160/inch_to_mm))
-ax1 = plt.subplot2grid((3, 2), (0, 0), colspan=2)
-ax2 = plt.subplot2grid((3, 2), (1, 0))
-ax3 = plt.subplot2grid((3, 2), (1, 1))
-ax4 = plt.subplot2grid((3, 2), (2, 0))
-ax5 = plt.subplot2grid((3, 2), (2, 1))
+fig, ax = plt.subplots(figsize=(110/inch_to_mm,70/inch_to_mm))
 vector_ch1 = []
 vector_ch2 = []
 vector_ch3 = []
@@ -288,30 +318,22 @@ for measurement_number, measurement_dict in dict_data_timing.items():
     vector_ch5.append(measurement_dict['ToT'][4])
 
 this_histo, edges = np.histogram(vector_ch1, bins=100, range=(0, 1000))
-ax1.step(edges[:-1], this_histo, where='post')
+ax.step(edges[:-1], this_histo, where='post', label='E')
 
 this_histo, edges = np.histogram(vector_ch2, bins=100, range=(0, 1000))
-ax2.step(edges[:-1], this_histo, where='post')
+ax.step(edges[:-1], this_histo, where='post', label='A')
 
 this_histo, edges = np.histogram(vector_ch3, bins=100, range=(0, 1000))
-ax3.step(edges[:-1], this_histo, where='post')
+ax.step(edges[:-1], this_histo, where='post', label='B')
 
 this_histo, edges = np.histogram(vector_ch4, bins=100, range=(0, 1000))
-ax4.step(edges[:-1], this_histo, where='post')
+ax.step(edges[:-1], this_histo, where='post', label='C')
 
 this_histo, edges = np.histogram(vector_ch5, bins=100, range=(0, 1000))
-ax5.step(edges[:-1], this_histo, where='post')
+ax.step(edges[:-1], this_histo, where='post', label='D')
 
-ax1.set_xlabel('Time over threshold (ns)', size=12)
-ax2.set_xlabel('Time over threshold (ns)', size=12)
-ax3.set_xlabel('Time over threshold (ns)', size=12)
-ax4.set_xlabel('Time over threshold (ns)', size=12)
-ax5.set_xlabel('Time over threshold (ns)', size=12)
-ax1.text(0.1, 0.9, 'E', ha='left', va='center', transform=ax1.transAxes)
-ax2.text(0.1, 0.9, 'A', ha='left', va='center', transform=ax2.transAxes)
-ax3.text(0.1, 0.9, 'B', ha='left', va='center', transform=ax3.transAxes)
-ax4.text(0.1, 0.9, 'C', ha='left', va='center', transform=ax4.transAxes)
-ax5.text(0.1, 0.9, 'D', ha='left', va='center', transform=ax5.transAxes)
+ax.set_xlabel('Time over threshold (ns)', size=12)
+ax.legend()
 
 plt.tight_layout(pad=0.5)
 # fig.subplots_adjust(hspace=0, wspace=0)
@@ -374,7 +396,83 @@ ax3.set_title('use rising signal A', size=12)
 plt.tight_layout(pad=0.5)
 # fig.subplots_adjust(hspace=0, wspace=0)
 
+# %%
 
+fig, ax = plt.subplots(figsize=(110/inch_to_mm,70/inch_to_mm))
+vector_A = []
+vector_B = []
+vector_C = []
+vector_D = []
+for measurement_number, measurement_dict in dict_data_amplitude.items():
+    vector_A.append(measurement_dict['amplitudes'][0])
+    vector_B.append(measurement_dict['amplitudes'][1])
+    vector_C.append(measurement_dict['amplitudes'][2])
+    vector_D.append(measurement_dict['amplitudes'][3])
+
+this_histo, edges = np.histogram(vector_A, bins=100, range=(0, 2.5))
+ax.step(edges[:-1], this_histo, where='post', label='A')
+
+this_histo, edges = np.histogram(vector_B, bins=100, range=(0, 2.5))
+ax.step(edges[:-1], this_histo, where='post', label='B')
+
+this_histo, edges = np.histogram(vector_C, bins=100, range=(0, 2.5))
+ax.step(edges[:-1], this_histo, where='post', label='C')
+
+this_histo, edges = np.histogram(vector_D, bins=100, range=(0, 2.5))
+ax.step(edges[:-1], this_histo, where='post', label='D')
+
+ax.set_xlabel('Amplitude (V)', size=12)
+ax.legend()
+
+plt.tight_layout(pad=0.5)
+# fig.subplots_adjust(hspace=0, wspace=0)
+
+# %%
+
+fig, ax = plt.subplots(figsize=(110/inch_to_mm,70/inch_to_mm))
+vector_x = []
+vector_y = []
+for measurement_number, measurement_dict in dict_data_amplitude.items():
+    vector_x.append(measurement_dict['xy'][0])
+    vector_y.append(measurement_dict['xy'][1])
+
+this_histo, edges = np.histogram(vector_x, bins=1000, range=(0, 1))
+ax.step(edges[:-1], this_histo, where='post', label='x')
+
+this_histo, edges = np.histogram(vector_y, bins=1000, range=(0, 1))
+ax.step(edges[:-1], this_histo, where='post', label='y')
+
+ax.set_xlabel('Position (0-1)', size=12)
+ax.legend()
+
+plt.tight_layout(pad=0.5)
+# fig.subplots_adjust(hspace=0, wspace=0)
+
+# %%
+
+cmap = plt.cm.viridis
+cmap.set_under('white')
+
+fig, ax = plt.subplots(figsize=(120/inch_to_mm,120/inch_to_mm))
+
+vector_x = []
+vector_y = []
+for measurement_number, measurement_dict in dict_data_amplitude.items():
+    vector_x.append(measurement_dict['xy'][0])
+    vector_y.append(measurement_dict['xy'][1])
+
+histo, ex, ey = np.histogram2d(vector_x, vector_y,
+                               bins = (500, 500),
+                               range = [[0, 1], [0, 1]])
+
+cax = ax.pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+ax.set_xlabel('Position x', size=12)
+ax.set_ylabel('Position y', size=12)
+
+plt.tight_layout(pad=0.5)
+# fig.subplots_adjust(hspace=0, wspace=0)
 
 
 

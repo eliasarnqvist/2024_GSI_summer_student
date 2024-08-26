@@ -43,7 +43,6 @@ div = int(x_len / coarse_size)
 zz_coarse = zz.reshape(128, 8, 128, 8).sum(axis=(1, 3))
 
 
-
 # %%
 
 plt.close('all')

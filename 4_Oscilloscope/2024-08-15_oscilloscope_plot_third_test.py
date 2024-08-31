@@ -14,7 +14,7 @@ import matplotlib.colors as mcolors
 
 data_folder = r'data'
 
-file_1 = r'2024-08-15_data_chA_find_tot_relation\\tek0010ALL.csv'
+file_1 = r'2024-08-15_data_chA_find_tot_relation\\tek0011ALL.csv'
 filepath_1 = data_folder + "\\" + file_1
 # col_names = ['t', 'V']
 col_names = ['t', 'V1', 'V2']
@@ -38,8 +38,8 @@ ax.set_ylabel('Voltage (V)')
 ax.legend(frameon=False)
 plt.tight_layout(pad=0.5)
 
-save_name = 'oscilloscope_preamp_A_E'
-plt.savefig(f'figures\\{save_name}.jpg', dpi=300)
-plt.savefig(f'figures\\{save_name}.pdf')
+# save_name = 'oscilloscope_preamp_A_E'
+# plt.savefig(f'figures\\{save_name}.jpg', dpi=300)
+# plt.savefig(f'figures\\{save_name}.pdf')
 
 

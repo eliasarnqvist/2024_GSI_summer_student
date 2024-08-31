@@ -21,12 +21,14 @@ measured_heads = content.count('h')
 measured_tails = content.count('t')
 measured_tosses = measured_heads + measured_tails
 measured_frac = measured_tails / measured_tosses
-measured_error = np.sqrt(measured_tails) / measured_tosses
+# measured_error = np.sqrt(measured_tails) / measured_tosses
+measured_error = np.sqrt(measured_frac * (1 - measured_frac) * measured_tosses) / measured_tosses
 
 # Expected
 expected_frac = 0.5
 expected_tails = expected_frac * measured_tosses
-expected_error = np.sqrt(expected_tails) / measured_tosses
+# expected_error = np.sqrt(expected_tails) / measured_tosses
+expected_error = np.sqrt(expected_frac * (1 - expected_frac) * measured_tosses) / measured_tosses
 
 # =============================================================================
 # Make a plot
@@ -37,7 +39,7 @@ plt.close('all')
 inch_to_mm = 25.4
 colors = plt.cm.tab10
 
-fig, ax = plt.subplots(figsize=(73/inch_to_mm, 60/inch_to_mm))
+fig, ax = plt.subplots(figsize=(73/inch_to_mm, 55/inch_to_mm))
 x = ['Summer student\ntechnique', 'Conventional\nmethod']
 y = [measured_frac, expected_frac]
 err = [measured_error, expected_error]
@@ -50,7 +52,7 @@ ax.set_xlim(-0.5, len(x) - 0.5)
 ax.set_ylim([0, 1])
 
 ax.text(0.6, 0.55, r'$P\approx0.5$', transform=ax.transAxes, ha='center')
-ax.text(0.45, 0.85, f'$P={measured_frac:.3f}$', transform=ax.transAxes, ha='center')
+ax.text(0.45, 0.868, f'$P={measured_frac:.2f}$', transform=ax.transAxes, ha='center')
 # ax.text(0.1, 0.1, f'Number of tosses: {measured_tosses}', transform=ax.transAxes, ha='left')
 
 ax.set_ylabel('Probability', size=10)

@@ -191,7 +191,7 @@ for i, baseline in enumerate(baselines):
 
 surrogate_funcs = pd.DataFrame({'name':names, 'popts':popts})
 
-surrogate_funcs.to_csv('results/surrogate_functions.csv', index=False)
+# surrogate_funcs.to_csv('results/surrogate_functions.csv', index=False)
 
 # =============================================================================
 # Import data

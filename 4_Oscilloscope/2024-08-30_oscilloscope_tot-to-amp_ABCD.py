@@ -90,6 +90,7 @@ for i, df in enumerate(dfs):
     U_smooth = np.convolve(U, np.ones(50)/50, mode='valid')
     
     ax.plot(t[:-49], U_smooth)
+    # ax.plot(t, U)
     
     amp = np.max(U)
     

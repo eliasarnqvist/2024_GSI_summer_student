@@ -22,7 +22,7 @@ i = 0
 
 # 10 dB dampening is equivalent to division by sqrt(10)
 dampening_correction = 10**(10/20)
-# Correction for base line shift
+# Correction for baseline shift
 const = -1.038822e+00
 
 with open(file_path, 'r') as file:

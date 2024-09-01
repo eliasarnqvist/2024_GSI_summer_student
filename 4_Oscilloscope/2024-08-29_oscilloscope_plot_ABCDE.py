@@ -36,11 +36,11 @@ inch_to_mm = 25.4
 colors = plt.cm.tab10
 
 fig, ax = plt.subplots(figsize=(73/inch_to_mm, 55/inch_to_mm))
-ax.plot(df_1['t']*1e6 + 0.26, df_1['V1'] * 1e3, label='A', lw=1)
-ax.plot(df_1['t']*1e6 + 0.26, df_1['V2'] * 1e3, label='B', lw=1)
-ax.plot(df_2['t']*1e6 + 0.26, df_2['V1'] * 1e3, label='C', lw=1) # actually A...
-ax.plot(df_2['t']*1e6 + 0.26, df_2['V2'] * 1e3, label='D', lw=1) # actually B...
-ax.plot(df_1['t']*1e6 + 0.26, df_1['V3'] * 1e3, label='E', lw=1)
+ax.plot(df_1['t']*1e6 + 0.26, df_1['V1'] * 1e3, label='A', lw=1.5)
+ax.plot(df_1['t']*1e6 + 0.26, df_1['V2'] * 1e3, label='B', lw=1.5)
+ax.plot(df_2['t']*1e6 + 0.26, df_2['V1'] * 1e3, label='C', lw=1.5) # actually A...
+ax.plot(df_2['t']*1e6 + 0.26, df_2['V2'] * 1e3, label='D', lw=1.5) # actually B...
+ax.plot(df_1['t']*1e6 + 0.26, df_1['V3'] * 1e3, label='E', lw=1.5)
 ax.set_yticks(ticks=np.arange(-800, 700, 200))
 ax.tick_params(axis='y', labelsize=10)
 ax.set_xticks(ticks=np.arange(0, 3.5, 0.5))
@@ -51,7 +51,7 @@ ax.set_xlabel(r'Time (\textmu s)', size=10)
 ax.set_ylabel('Voltage (mV)', size=10)
 
 ax.legend(frameon=False, loc='upper right', ncols=2, fontsize=10, 
-          handlelength=1, handletextpad=0.5, columnspacing=0.5)
+          handlelength=1.5, handletextpad=0.5, columnspacing=0.5)
 
 plt.tight_layout(pad=0.5)
 

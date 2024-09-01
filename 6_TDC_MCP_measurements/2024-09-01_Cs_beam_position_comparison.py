@@ -307,7 +307,7 @@ fig, ax = plt.subplots(figsize=(73/inch_to_mm,65/inch_to_mm))
 
 vector_x = []
 vector_y = []
-for measurement_number, measurement_dict in data_pos_3.items():
+for measurement_number, measurement_dict in data_pos_0.items():
     vector_x.append(measurement_dict['xy'][0])
     vector_y.append(measurement_dict['xy'][1])
 
@@ -321,12 +321,97 @@ cax = ax.pcolormesh(ex, ey, histo.T, cmap=cmap,
 ax.set_xticks(np.arange(0,1,0.02))
 ax.set_yticks(np.arange(0,1,0.02))
 
-# ax.set_xlim([0.41, 0.51])
-# ax.set_ylim([0.45, 0.55])
+ax.set_xlim([0.40, 0.50])
+ax.set_ylim([0.45, 0.55])
 ax.set_aspect('equal')
 
 ax.set_xlabel('Position $x$', size=12)
 ax.set_ylabel('Position $y$', size=12)
+
+plt.tight_layout(pad=0.5)
+# fig.subplots_adjust(hspace=0, wspace=0)
+
+
+# %%
+
+fig, ax = plt.subplots(figsize=(73/inch_to_mm,70/inch_to_mm))
+
+run = data_adc_pos_0
+cax = ax.pcolormesh(run[0], run[1], run[2], cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+ax.set_xlim([0.41, 0.51])
+ax.set_ylim([0.35, 0.45])
+
+# %%
+
+fig, ax = plt.subplots(3, 2, figsize=(73/inch_to_mm,110/inch_to_mm))
+
+vector_x = []
+vector_y = []
+for measurement_number, measurement_dict in data_pos_0.items():
+    vector_x.append(measurement_dict['xy'][0])
+    vector_y.append(measurement_dict['xy'][1])
+histo, ex, ey = np.histogram2d(vector_x, vector_y,
+                               bins = (500, 500),
+                               range = [[0, 1], [0, 1]])
+cax = ax[0, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+vector_x = []
+vector_y = []
+for measurement_number, measurement_dict in data_pos_2.items():
+    vector_x.append(measurement_dict['xy'][0])
+    vector_y.append(measurement_dict['xy'][1])
+histo, ex, ey = np.histogram2d(vector_x, vector_y,
+                               bins = (500, 500),
+                               range = [[0, 1], [0, 1]])
+cax = ax[1, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+vector_x = []
+vector_y = []
+for measurement_number, measurement_dict in data_pos_3.items():
+    vector_x.append(measurement_dict['xy'][0])
+    vector_y.append(measurement_dict['xy'][1])
+histo, ex, ey = np.histogram2d(vector_x, vector_y,
+                               bins = (500, 500),
+                               range = [[0, 1], [0, 1]])
+cax = ax[2, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+run = data_adc_pos_0
+cax = ax[0, 1].pcolormesh(run[0], run[1], run[2], cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+run = data_adc_pos_2
+cax = ax[1, 1].pcolormesh(run[0], run[1], run[2], cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+run = data_adc_pos_3
+cax = ax[2, 1].pcolormesh(run[0], run[1], run[2], cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+for axn in ax.flatten():
+    axn.set_xticks(np.arange(0,1,0.02))
+    axn.set_yticks(np.arange(0,1,0.02))
+
+ax[0, 0].set_xlim([0.42, 0.49])
+ax[0, 0].set_ylim([0.47, 0.54])
+ax[1, 0].set_xlim([0.55, 0.60])
+ax[1, 0].set_ylim([0.60, 0.65])
+ax[2, 0].set_xlim([0.36, 0.41])
+ax[2, 0].set_ylim([0.395, 0.445])
+
+ax[0, 1].set_xlim([0.41, 0.48])
+ax[0, 1].set_ylim([0.37, 0.44])
+ax[1, 1].set_xlim([0.54, 0.59])
+ax[1, 1].set_ylim([0.48, 0.53])
+ax[2, 1].set_xlim([0.34, 0.39])
+ax[2, 1].set_ylim([0.31, 0.36])
+
+for axn in ax.flatten():
+    axn.set_aspect('equal')
 
 plt.tight_layout(pad=0.5)
 # fig.subplots_adjust(hspace=0, wspace=0)
@@ -337,14 +422,47 @@ plt.tight_layout(pad=0.5)
 
 # %%
 
-fig, ax = plt.subplots(figsize=(73/inch_to_mm,70/inch_to_mm))
+fig, ax = plt.subplots(1, 2, figsize=(73/inch_to_mm,40/inch_to_mm))
 
-run = data_adc_pos_3
-cax = ax.pcolormesh(run[0], run[1], run[2], cmap=cmap, 
+vector_x = []
+vector_y = []
+for measurement_number, measurement_dict in data_pos_1.items():
+    vector_x.append(measurement_dict['xy'][0])
+    vector_y.append(measurement_dict['xy'][1])
+histo, ex, ey = np.histogram2d(vector_x, vector_y,
+                               bins = (500, 500),
+                               range = [[0, 1], [0, 1]])
+cax = ax[0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
                     norm=mcolors.Normalize(vmin=0.001), rasterized=True)
 
+run = data_adc_pos_1
+cax = ax[1].pcolormesh(run[0], run[1], run[2], cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
 
+for axn in ax.flatten():
+    axn.set_xticks(np.arange(0,1,0.03))
+    axn.set_yticks(np.arange(0,1,0.03))
 
+ax[0].set_xlim([0.38, 0.44])
+ax[0].set_ylim([0.42, 0.48])
 
+ax[1].set_xlim([0.36, 0.42])
+ax[1].set_ylim([0.33, 0.39])
 
+ax[0].set_title('TDC', size=10)
+ax[1].set_title('ADC', size=10)
 
+ax[0].set_xlabel('Position $x$', size=10)
+ax[1].set_xlabel('Position $x$', size=10)
+ax[0].set_ylabel('Position $y$', size=10, labelpad=1)
+# ax[1].set_ylabel('$y$', size=10)
+
+for axn in ax.flatten():
+    axn.set_aspect('equal')
+
+plt.tight_layout(pad=0.3)
+fig.subplots_adjust(hspace=0, wspace=0.45)
+
+save_name = 'beam_position_comparison'
+plt.savefig(f'figures\\{save_name}.jpg', dpi=300)
+plt.savefig(f'figures\\{save_name}.pdf')

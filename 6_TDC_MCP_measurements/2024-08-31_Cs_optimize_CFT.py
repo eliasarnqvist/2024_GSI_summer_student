@@ -200,6 +200,7 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
     
     ToF = times_E[0]
     CFDs = np.arange(0, 1.001, 0.01)
+    # CFDs = np.array([0.3, 0.6])
     ToFs = CFT(times_E[0], times_E[1], CFDs)
     
     dict_data_timing[measurement_index] = {'ToT':times,

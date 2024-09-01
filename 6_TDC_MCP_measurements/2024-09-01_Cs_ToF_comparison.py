@@ -158,6 +158,7 @@ measurement_index = 0
 for sweep_number, sweep_dict in dict_data_sweep.items():
     times = [0, 0, 0, 0, 0]
     times_E = [0, 0]
+    times_A = [0]
     amplitudes = [0, 0, 0, 0]
     
     for event_time, event_dict in sweep_dict.items():
@@ -168,6 +169,7 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
                 times_E[0] = event_dict['time']
             elif event_dict['channel_w'] == 'STOP_2':
                 times[1] -= event_dict['time']
+                times_A[0] = event_dict['time']
             elif event_dict['channel_w'] == 'STOP_3':
                 times[2] -= event_dict['time']
             elif event_dict['channel_w'] == 'STOP_4':
@@ -190,6 +192,7 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
     # The time in ns
     times = [time * 80 / 1e3 for time in times]
     times_E = [time * 80 / 1e3 for time in times_E]
+    times_A = [time * 80 / 1e3 for time in times_A]
     
     for j, time in enumerate(times[1:]):
         popts_list = np.fromstring(surrogate_df['popts'][0].strip('[]'), sep=' ')
@@ -198,7 +201,7 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
     
     xy = xy_position(amplitudes[0], amplitudes[1], amplitudes[2], amplitudes[3])
     
-    ToF = times_E[0]
+    ToF = [times_E[0], times_E[1], times_A[0]]
     CFDs = 0.57
     ToFs = CFT(times_E[0], times_E[1], 0.57)
     
@@ -226,68 +229,67 @@ def gaussian(T, a1, b1, c1):
 
 # %%
 
-fig, ax = plt.subplots(figsize=(110/inch_to_mm,70/inch_to_mm))
+fig, ax = plt.subplots(figsize=(73/inch_to_mm,55/inch_to_mm))
 
-vector_x = []
-vector_y = []
+vector_1 = []
+vector_2 = []
+vector_3 = []
+vector_4 = []
 for measurement_number, measurement_dict in dict_data_timing.items():
-    vector_x.append(measurement_dict['xy'][0])
-    vector_y.append(measurement_dict['xy'][1])
+    vector_1.append(measurement_dict['ToF'][0])
+    vector_2.append(measurement_dict['ToF'][1])
+    vector_3.append(measurement_dict['ToF_CFD'])
+    vector_4.append(measurement_dict['ToF'][2])
 
-this_histo, edges = np.histogram(vector_x, bins=1000, range=(0, 1))
-ax.step(edges[:-1], this_histo, where='post', label='x')
+this_histo, edges = np.histogram(vector_1, bins=3000, range=(41e3, 43e3))
+edges = edges - edges[np.argmax(this_histo)]
+popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
+                       sigma=np.sqrt(this_histo+1), 
+                       p0=[200, 0, 10])
+FWHM = 2.35482 * abs(popt[2])
+# ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
+ax.step(edges[:-1], this_histo, where='post', lw=1.5, 
+        label='Signal E rising \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
 
-this_histo, edges = np.histogram(vector_y, bins=1000, range=(0, 1))
-ax.step(edges[:-1], this_histo, where='post', label='y')
+this_histo, edges = np.histogram(vector_2, bins=3000, range=(41e3, 43e3))
+edges = edges - edges[np.argmax(this_histo)]
+popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
+                       sigma=np.sqrt(this_histo+1), 
+                       p0=[200, 0, 10])
+FWHM = 2.35482 * abs(popt[2])
+# ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
+ax.step(edges[:-1], this_histo, where='post', lw=1.5, 
+        label='Signal E falling \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
 
-ax.set_xlabel('Position (0-1)', size=12)
-ax.legend()
+this_histo, edges = np.histogram(vector_3, bins=3000, range=(41e3, 43e3))
+edges = edges - edges[np.argmax(this_histo)]
+popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
+                       sigma=np.sqrt(this_histo+1), 
+                       p0=[200, 0, 10])
+FWHM = 2.35482 * abs(popt[2])
+# ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
+ax.step(edges[:-1], this_histo, where='post', lw=1.5, 
+        label='Optimized CFT \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
+
+# this_histo, edges = np.histogram(vector_4, bins=2000, range=(41e3, 43e3))
+# edges = edges - edges[np.argmax(this_histo)]
+# ax.step(edges[:-1], this_histo, where='post')
+
+ax.set_xlabel('Time-of-flight, relative (ns)', size=10)
+ax.set_ylabel('Counts per bin', size=10)
+ax.legend(frameon=False, loc='upper right', ncols=1, fontsize=10, 
+          handlelength=1, handletextpad=0.5, columnspacing=0.5)
+
+ax.set_xlim(-20, 50)
+
+# ax.set_yscale('log')
 
 plt.tight_layout(pad=0.5)
 # fig.subplots_adjust(hspace=0, wspace=0)
 
-# %%
-
-cmap = plt.cm.viridis
-cmap.set_under('white')
-
-fig, ax = plt.subplots(figsize=(73/inch_to_mm,55/inch_to_mm))
-
-vector_x = []
-vector_y = []
-for measurement_number, measurement_dict in dict_data_timing.items():
-    vector_x.append(measurement_dict['xy'][0])
-    vector_y.append(measurement_dict['xy'][1])
-
-histo, ex, ey = np.histogram2d(vector_x, vector_y,
-                               bins = (500, 500),
-                               range = [[0, 1], [0, 1]])
-
-cax = ax.pcolormesh(ex, ey, histo.T, cmap=cmap, 
-                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
-
-cbar = plt.colorbar(cax, ax=ax)
-cbar.set_label('Counts per bin', size=10)
-cbar.set_ticks([1, 100, 200])
-
-ax.set_xticks(np.arange(0,1,0.02))
-ax.set_yticks(np.arange(0,1,0.02))
-
-ax.set_xlim([0.41, 0.51])
-ax.set_ylim([0.45, 0.55])
-ax.set_aspect('equal')
-
-ax.set_xlabel('Position $x$', size=10)
-ax.set_ylabel('Position $y$', size=10)
-
-plt.tight_layout(pad=0.8)
-# fig.subplots_adjust(hspace=0, wspace=0)
-
-save_name = 'beam_position_center'
+save_name = 'ToF_comparison'
 plt.savefig(f'figures\\{save_name}.jpg', dpi=300)
 plt.savefig(f'figures\\{save_name}.pdf')
-
-
 
 
 

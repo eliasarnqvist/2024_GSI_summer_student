@@ -35,7 +35,7 @@ plt.close('all')
 inch_to_mm = 25.4
 colors = plt.cm.tab10
 
-fig, ax = plt.subplots(figsize=(73/inch_to_mm, 55/inch_to_mm))
+fig, ax = plt.subplots(figsize=(68/inch_to_mm, 45/inch_to_mm))
 ax.plot(df_1['t']*1e6 + 0.26, df_1['V1'] * 1e3, label='A', lw=1.5)
 ax.plot(df_1['t']*1e6 + 0.26, df_1['V2'] * 1e3, label='B', lw=1.5)
 ax.plot(df_2['t']*1e6 + 0.26, df_2['V1'] * 1e3, label='C', lw=1.5) # actually A...
@@ -53,7 +53,7 @@ ax.set_ylabel('Voltage (mV)', size=10)
 ax.legend(frameon=False, loc='upper right', ncols=2, fontsize=10, 
           handlelength=1.5, handletextpad=0.5, columnspacing=0.5)
 
-plt.tight_layout(pad=0.5)
+plt.tight_layout(pad=0.1)
 
 save_name = 'oscilloscope_preamp_ABCDE'
 plt.savefig(f'figures\\{save_name}.jpg', dpi=300)

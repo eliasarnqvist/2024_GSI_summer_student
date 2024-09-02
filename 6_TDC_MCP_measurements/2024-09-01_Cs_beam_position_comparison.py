@@ -449,8 +449,8 @@ ax[0].set_ylim([0.42, 0.48])
 ax[1].set_xlim([0.36, 0.42])
 ax[1].set_ylim([0.33, 0.39])
 
-ax[0].set_title('TDC', size=10)
-ax[1].set_title('ADC', size=10)
+ax[0].set_title('This project', size=10)
+ax[1].set_title('Previous', size=10)
 
 ax[0].set_xlabel('Position $x$', size=10)
 ax[1].set_xlabel('Position $x$', size=10)

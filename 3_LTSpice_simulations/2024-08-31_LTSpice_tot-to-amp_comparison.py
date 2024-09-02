@@ -237,7 +237,7 @@ colors = plt.cm.tab10
 
 
 
-fig, ax = plt.subplots(figsize=(73/inch_to_mm,55/inch_to_mm))
+fig, ax = plt.subplots(figsize=(73/inch_to_mm,45/inch_to_mm))
 dd = {}
 xx = []
 yy = []
@@ -267,8 +267,9 @@ ax.set_ylabel('Amplitude (V)')
 ax.legend(frameon=False, loc='upper left', ncols=1, fontsize=10, 
           handlelength=1.5, handletextpad=0.5, columnspacing=0.5)
 ax.set_xlim([200, 800])
-ax.set_ylim([0, 2])
-plt.tight_layout(pad=0.5)
+ax.set_ylim([0, 1.8])
+ax.set_xticks([i*100 for i in range(9)])
+plt.tight_layout(pad=0.1)
 
 save_name = 'comparison_tot-to-amp'
 plt.savefig(f'figures\\{save_name}.jpg', dpi=300)

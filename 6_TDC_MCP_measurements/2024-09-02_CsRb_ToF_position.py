@@ -12,6 +12,7 @@ import struct
 import pickle
 from scipy.optimize import curve_fit
 import matplotlib.colors as mcolors
+from matplotlib.colors import LogNorm
 
 # =============================================================================
 # Import data
@@ -235,6 +236,9 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
 
 plt.close('all')
 
+cmap = plt.cm.viridis
+cmap.set_under('white')
+
 inch_to_mm = 25.4
 colors = plt.cm.tab10
 
@@ -244,114 +248,156 @@ def gaussian(T, a1, b1, c1):
 
 # %%
 
-fig, ax = plt.subplots(1, 3, figsize=(148/inch_to_mm,55/inch_to_mm), 
-                       sharey=True)
+fig, ax = plt.subplots(figsize=(100/inch_to_mm,70/inch_to_mm))
 
-vector_1 = []
-vector_2 = []
-vector_3 = []
+vector_x = np.array([])
+vector_y = np.array([])
 for measurement_number, measurement_dict in dict_data_timing.items():
-    vector_1.append(measurement_dict['ToF'][0])
-    vector_2.append(measurement_dict['ToF'][1])
-    vector_3.append(measurement_dict['ToF_CFD'])
+    vector_x = np.append(vector_x, measurement_dict['xy'][0])
+    vector_y = np.append(vector_y, measurement_dict['xy'][1])
 
-# this_histo, edges = np.histogram(vector_1, bins=5000, range=(23e3, 55e3))
-# ax.step(edges[:-1], this_histo, where='post', lw=1.5)
+histo, ex, ey = np.histogram2d(vector_x, vector_y,
+                               bins = (500, 500),
+                               range = [[0, 1], [0, 1]])
 
-# this_histo, edges = np.histogram(vector_2, bins=5000, range=(23e3, 55e3))
-# ax.step(edges[:-1], this_histo, where='post', lw=1.5)
+cax = ax.pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
 
-this_histo, edges = np.histogram(vector_3, bins=20000, range=(33e3, 43e3))
-edges_us = edges / 1e3
-ax[0].step(edges_us[:-1], this_histo, where='post', lw=1.5)
-ax[1].step(edges_us[:-1], this_histo, where='post', lw=1.5)
-ax[2].step(edges_us[:-1], this_histo, where='post', lw=1.5)
-
-ax[0].spines.right.set_visible(False)
-ax[1].spines.left.set_visible(False)
-ax[1].spines.right.set_visible(False)
-ax[2].spines.left.set_visible(False)
-ax[1].yaxis.set_ticks_position('none')
-ax[2].yaxis.tick_right()
-
-offs = 0.04
-
-lower = 33.385
-ax[0].set_xlim(lower, lower + offs)
-low = np.argmin(np.abs(edges_us - lower))
-high = np.argmin(np.abs(edges_us - lower - offs))
-popt, pcov = curve_fit(gaussian, edges_us[low:high], this_histo[low:high], 
-                       sigma=np.sqrt(this_histo[low:high] + 1), 
-                       p0=[500, lower + offs/2, 0.01])
-FWHM = 2.35482 * abs(popt[2]) * 1e3
-position = popt[1]
-print(FWHM)
-# ax[0].plot(edges_us[:-1], gaussian(edges_us[:-1], *popt))
-text = ('$T\!oF = {:.3f}$'.format(round(position, 4)) + r' \textmu s' + 
-        '\n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
-ax[0].text(0.42, 0.5, text, ha='left', va='center', transform=ax[0].transAxes)
-
-lower = 33.793
-ax[1].set_xlim(lower, lower + offs)
-low = np.argmin(np.abs(edges_us - lower))
-high = np.argmin(np.abs(edges_us - lower - offs))
-popt, pcov = curve_fit(gaussian, edges_us[low:high], this_histo[low:high], 
-                       sigma=np.sqrt(this_histo[low:high] + 1), 
-                       p0=[500, lower + offs/2, 0.01])
-FWHM = 2.35482 * abs(popt[2]) * 1e3
-position = popt[1]
-print(FWHM)
-# ax[1].plot(edges_us[:-1], gaussian(edges_us[:-1], *popt))
-text = ('$T\!oF = {:.3f}$'.format(round(position, 4)) + r' \textmu s' + 
-        '\n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
-ax[1].text(0.32, 0.2, text, ha='left', va='center', transform=ax[1].transAxes)
-
-lower = 42.065
-ax[2].set_xlim(lower, lower + offs)
-low = np.argmin(np.abs(edges_us - lower))
-high = np.argmin(np.abs(edges_us - lower - offs))
-popt, pcov = curve_fit(gaussian, edges_us[low:high], this_histo[low:high], 
-                       sigma=np.sqrt(this_histo[low:high] + 1), 
-                       p0=[500, lower + offs/2, 0.01])
-FWHM = 2.35482 * abs(popt[2]) * 1e3
-position = popt[1]
-print(FWHM)
-# ax[2].plot(edges_us[:-1], gaussian(edges_us[:-1], *popt))
-text = ('$T\!oF = {:.3f}$'.format(round(position, 4)) + r' \textmu s' + 
-        '\n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
-ax[2].text(0.3, 0.55, text, ha='left', va='center', transform=ax[2].transAxes)
-
-ax[0].set_zorder(3)
-ax[1].set_zorder(2)
-ax[2].set_zorder(1)
-
-text = '$\mathrm{^{85}Rb}$'
-ax[0].text(0.21, 0.88, text, ha='left', va='center', transform=ax[0].transAxes)
-text = '$\mathrm{^{87}Rb}$'
-ax[1].text(0.13, 0.36, text, ha='left', va='center', transform=ax[1].transAxes)
-text = '$\mathrm{^{133}Cs}$'
-ax[2].text(0.08, 0.92, text, ha='left', va='center', transform=ax[2].transAxes)
-
-ax[0].set_yticks([i*200 for i in range(7)])
-ax[0].set_ylim([-50, 1150])
-
-ax[0].set_ylabel('Counts per bin', size = 10)
-ax[1].set_xlabel(r'Time-of-flight (\textmu s)')
-
-d = 0.5
-kwargs = dict(marker=[(-d, -1), (d, 1)], markersize=8,
-              linestyle="none", color='k', mec='k', mew=1, clip_on=False)
-ax[0].plot([1, 1], [0, 1], transform=ax[0].transAxes, **kwargs)
-ax[1].plot([0, 0], [0, 1], transform=ax[1].transAxes, **kwargs)
-ax[1].plot([1, 1], [0, 1], transform=ax[1].transAxes, **kwargs)
-ax[2].plot([0, 0], [0, 1], transform=ax[2].transAxes, **kwargs)
+ax.set_xlabel('Position $x$', size=10)
+ax.set_ylabel('Position $y$', size=10)
 
 plt.tight_layout(pad=0.5)
-fig.subplots_adjust(hspace=0, wspace=0.03)
 
-save_name = 'ToF_CsRb'
-plt.savefig(f'figures\\{save_name}.jpg', dpi=300)
-plt.savefig(f'figures\\{save_name}.pdf')
+# %%
 
+fig, ax = plt.subplots(figsize=(100/inch_to_mm,70/inch_to_mm))
+
+vector_x = np.array([])
+vector_y = np.array([])
+for measurement_number, measurement_dict in dict_data_timing.items():
+    vector_x = np.append(vector_x, measurement_dict['xy'][0])
+    vector_y = np.append(vector_y, measurement_dict['ToF_CFD'])
+
+histo, ex, ey = np.histogram2d(vector_x, vector_y / 1e3,
+                               bins = (500, 5000),
+                               range = [[0, 1], [33, 43]])
+
+cax = ax.pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+ax.set_xlabel('Position $x$', size=10)
+ax.set_ylabel('ToF', size=10)
+
+plt.tight_layout(pad=0.5)
+
+# %%
+
+fig, ax = plt.subplots(figsize=(100/inch_to_mm,70/inch_to_mm))
+
+vector_x = np.array([])
+vector_y = np.array([])
+for measurement_number, measurement_dict in dict_data_timing.items():
+    vector_x = np.append(vector_x, measurement_dict['ToF_CFD'])
+    vector_y = np.append(vector_y, measurement_dict['xy'][1])
+
+histo, ex, ey = np.histogram2d(vector_x / 1e3, vector_y,
+                               bins = (5000, 500),
+                               range = [[33, 43], [0, 1]])
+
+cax = ax.pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+ax.set_xlabel('ToF', size=10)
+ax.set_ylabel('Position $y$', size=10)
+
+plt.tight_layout(pad=0.5)
+
+
+# %%
+
+fig, ax = plt.subplots(4, 4, figsize=(150/inch_to_mm,150/inch_to_mm),
+                       gridspec_kw={'width_ratios': [3, 1, 1, 1], 
+                                    'height_ratios': [3, 1, 1, 1]},
+                       sharex='col', sharey='row')
+
+for i in range(3):
+    for j in range(3):
+        ax[i+1, j+1].set_visible(False)
+        ax[i+1, j+1].set_axis_off()
+        ax[i+1, j+1].set_zorder(0)
+
+vector_x = np.array([])
+vector_y = np.array([])
+vector_ToF = np.array([])
+for measurement_number, measurement_dict in dict_data_timing.items():
+    vector_x = np.append(vector_x, measurement_dict['xy'][0])
+    vector_y = np.append(vector_y, measurement_dict['xy'][1])
+    vector_ToF = np.append(vector_ToF, measurement_dict['ToF_CFD'])
+
+histo, ex, ey = np.histogram2d(vector_x, vector_y,
+                               bins = (300, 300),
+                               range = [[0, 1], [0, 1]])
+# cax = ax[0, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+cax = ax[0, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+
+histo, ex, ey = np.histogram2d(vector_x, vector_ToF / 1e3,
+                               bins = (300, 5000),
+                               range = [[0, 1], [33, 43]])
+# cax = ax[1, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+# cax = ax[2, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+# cax = ax[3, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+cax = ax[1, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+cax = ax[2, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+cax = ax[3, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+
+histo, ex, ey = np.histogram2d(vector_ToF / 1e3, vector_y,
+                               bins = (5000, 300),
+                               range = [[33, 43], [0, 1]])
+# cax = ax[0, 1].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+# cax = ax[0, 2].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+# cax = ax[0, 3].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+cax = ax[0, 1].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+cax = ax[0, 2].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+cax = ax[0, 3].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+
+ax[0, 0].set_xlim([0.3, 0.8])
+ax[0, 0].set_ylim([0.25, 0.75])
+
+offs = 0.04
+lower = 33.385
+ax[1, 0].set_ylim(lower, lower + offs)
+ax[0, 1].set_xlim(lower, lower + offs)
+lower = 33.793
+ax[2, 0].set_ylim(lower, lower + offs)
+ax[0, 2].set_xlim(lower, lower + offs)
+lower = 42.065
+ax[3, 0].set_ylim(lower, lower + offs)
+ax[0, 3].set_xlim(lower, lower + offs)
+
+ax[3, 0].set_xlabel('Position x')
+ax[0, 0].set_ylabel('Position y')
+ax[0, 2].set_xlabel('ToF (us)')
+ax[2, 0].set_ylabel('ToF (us)')
+
+ax[0, 1].xaxis.set_tick_params(labelbottom=True)
+ax[0, 2].xaxis.set_tick_params(labelbottom=True)
+ax[0, 3].xaxis.set_tick_params(labelbottom=True)
+
+plt.tight_layout(pad=0.5)
+fig.subplots_adjust(hspace=0, wspace=0)
 
 

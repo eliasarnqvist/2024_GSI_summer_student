@@ -12,6 +12,7 @@ import struct
 import pickle
 from scipy.optimize import curve_fit
 import matplotlib.colors as mcolors
+from matplotlib.colors import LogNorm
 
 # =============================================================================
 # Import data
@@ -82,6 +83,8 @@ with open(filepath_1, 'rb') as file:
                 dict_data_sweep[sweep_counter] = {}
             dict_data_sweep[sweep_counter][time] = event_dict
 
+#%%
+
 # =============================================================================
 # Event selection
 # =============================================================================
@@ -94,7 +97,8 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
     
     # First test the number of events in the sweep, which should be 10
     # (rising + falling for A, B, C, D, E)
-    if len(sweep_dict) != 10:
+    num_events = len(sweep_dict)
+    if num_events != 10 and num_events != 20 and num_events != 30:
         remove_these.append(sweep_number)
     else:
         # Rising edge events (START, STOP 2, 3, 4, 5)
@@ -126,11 +130,14 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
                 elif event_dict['channel_w'] == 'STOP_5':
                     falling_events[4] += 1
         
-        if rising_events != [1, 1, 1, 1, 1] or falling_events != [1, 1, 1, 1, 1]:
+        if not (all(x in [1, 2, 3] for x in rising_events) and 
+                all(x in [1, 2, 3] for x in falling_events)):
             remove_these.append(sweep_number)
 
 for sweep_number in remove_these:
     dict_data_sweep.pop(sweep_number)
+
+#%%
 
 # =============================================================================
 # Time over threshold, amplitude, xy position, time of flight
@@ -158,8 +165,9 @@ measurement_index = 0
 for sweep_number, sweep_dict in dict_data_sweep.items():
     times = [0, 0, 0, 0, 0]
     times_E = [0, 0]
-    times_A = [0]
     amplitudes = [0, 0, 0, 0]
+    
+    event_index = 0
     
     for event_time, event_dict in sweep_dict.items():
         
@@ -169,7 +177,6 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
                 times_E[0] = event_dict['time']
             elif event_dict['channel_w'] == 'STOP_2':
                 times[1] -= event_dict['time']
-                times_A[0] = event_dict['time']
             elif event_dict['channel_w'] == 'STOP_3':
                 times[2] -= event_dict['time']
             elif event_dict['channel_w'] == 'STOP_4':
@@ -188,37 +195,49 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
                 times[3] += event_dict['time']
             elif event_dict['channel_w'] == 'STOP_5':
                 times[4] += event_dict['time']
-    
-    # The time in ns
-    times = [time * 80 / 1e3 for time in times]
-    times_E = [time * 80 / 1e3 for time in times_E]
-    times_A = [time * 80 / 1e3 for time in times_A]
-    
-    for j, time in enumerate(times[1:]):
-        popts_list = np.fromstring(surrogate_df['popts'][0].strip('[]'), sep=' ')
-        amplitude = surrogate_function(time, *popts_list)
-        amplitudes[j] = amplitude
-    
-    xy = xy_position(amplitudes[0], amplitudes[1], amplitudes[2], amplitudes[3])
-    
-    ToF = [times_E[0], times_E[1], times_A[0]]
-    CFDs = 0.57
-    ToFs = CFT(times_E[0], times_E[1], 0.57)
-    
-    dict_data_timing[measurement_index] = {'ToT':times,
-                                           'amplitudes':amplitudes,
-                                           'xy':xy,
-                                           'ToF':ToF,
-                                           'ToF_CFD':ToFs,
-                                           'CFD':CFDs}
-    
-    measurement_index += 1
+        
+        # Every tenth event we should move on to the next ion detection
+        # (rising + falling for ABCDE for every ion detection, so 10 (0-9))
+        if event_index % 9 == 0 and event_index > 0:
+            # The time in ns
+            times = [time * 80 / 1e3 for time in times]
+            times_E = [time * 80 / 1e3 for time in times_E]
+            # print(times_E)
+            
+            for j, time in enumerate(times[1:]):
+                popts_list = np.fromstring(surrogate_df['popts'][0].strip('[]'), sep=' ')
+                amplitude = surrogate_function(time, *popts_list)
+                amplitudes[j] = amplitude
+            
+            xy = xy_position(amplitudes[0], amplitudes[1], amplitudes[2], amplitudes[3])
+            
+            ToF = [times_E[0], times_E[1]]
+            CFDs = 0.57
+            ToFs = CFT(times_E[0], times_E[1], 0.57)
+            
+            dict_data_timing[measurement_index] = {'ToT':times,
+                                                   'amplitudes':amplitudes,
+                                                   'xy':xy,
+                                                   'ToF':ToF,
+                                                   'ToF_CFD':ToFs,
+                                                   'CFD':CFDs}
+            
+            times = [0, 0, 0, 0, 0]
+            times_E = [0, 0]
+            amplitudes = [0, 0, 0, 0]
+            
+            measurement_index += 1
+        
+        event_index += 1
 
 # =============================================================================
 # Plot
 # =============================================================================
 
 plt.close('all')
+
+cmap = plt.cm.viridis
+cmap.set_under('white')
 
 inch_to_mm = 25.4
 colors = plt.cm.tab10
@@ -229,67 +248,132 @@ def gaussian(T, a1, b1, c1):
 
 # %%
 
-fig, ax = plt.subplots(figsize=(73/inch_to_mm,50/inch_to_mm))
+fig, ax = plt.subplots(figsize=(100/inch_to_mm,70/inch_to_mm))
 
-vector_1 = []
-vector_2 = []
-vector_3 = []
-vector_4 = []
+vector_x = np.array([])
+vector_y = np.array([])
 for measurement_number, measurement_dict in dict_data_timing.items():
-    vector_1.append(measurement_dict['ToF'][0])
-    vector_2.append(measurement_dict['ToF'][1])
-    vector_3.append(measurement_dict['ToF_CFD'])
-    vector_4.append(measurement_dict['ToF'][2])
+    vector_x = np.append(vector_x, measurement_dict['xy'][0])
+    vector_y = np.append(vector_y, measurement_dict['xy'][1])
 
-this_histo, edges = np.histogram(vector_1, bins=3000, range=(41e3, 43e3))
-edges = edges - edges[np.argmax(this_histo)]
-popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
-                       sigma=np.sqrt(this_histo+1), 
-                       p0=[200, 0, 10])
-FWHM = 2.35482 * abs(popt[2])
-# ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
-ax.step(edges[:-1], this_histo, where='post', lw=1.5, 
-        label='Signal E rising \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
+histo, ex, ey = np.histogram2d(vector_x, vector_y,
+                               bins = (500, 500),
+                               range = [[0, 1], [0, 1]])
 
-this_histo, edges = np.histogram(vector_2, bins=3000, range=(41e3, 43e3))
-edges = edges - edges[np.argmax(this_histo)]
-popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
-                       sigma=np.sqrt(this_histo+1), 
-                       p0=[200, 0, 10])
-FWHM = 2.35482 * abs(popt[2])
-# ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
-ax.step(edges[:-1], this_histo, where='post', lw=1.5, 
-        label='Signal E falling \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
+cax = ax.pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
 
-this_histo, edges = np.histogram(vector_3, bins=3000, range=(41e3, 43e3))
-edges = edges - edges[np.argmax(this_histo)]
-popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
-                       sigma=np.sqrt(this_histo+1), 
-                       p0=[200, 0, 10])
-FWHM = 2.35482 * abs(popt[2])
-# ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
-ax.step(edges[:-1], this_histo, where='post', lw=1.5, 
-        label='Optimized CFT \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
-
-# this_histo, edges = np.histogram(vector_4, bins=2000, range=(41e3, 43e3))
-# edges = edges - edges[np.argmax(this_histo)]
-# ax.step(edges[:-1], this_histo, where='post')
-
-ax.set_xlabel('Time-of-flight, relative (ns)', size=10)
-ax.set_ylabel('Counts per bin', size=10)
-ax.legend(frameon=False, loc='upper right', ncols=1, fontsize=10, 
-          handlelength=1, handletextpad=0.5, columnspacing=0.5)
-
-ax.set_xlim(-20, 50)
-
-# ax.set_yscale('log')
+ax.set_xlabel('Position $x$', size=10)
+ax.set_ylabel('Position $y$', size=10)
 
 plt.tight_layout(pad=0.5)
-# fig.subplots_adjust(hspace=0, wspace=0)
 
-save_name = 'ToF_comparison'
-plt.savefig(f'figures\\{save_name}.jpg', dpi=300)
-plt.savefig(f'figures\\{save_name}.pdf')
+# %%
 
+fig, ax = plt.subplots(figsize=(100/inch_to_mm,70/inch_to_mm))
+
+vector_x = np.array([])
+vector_y = np.array([])
+for measurement_number, measurement_dict in dict_data_timing.items():
+    vector_x = np.append(vector_x, measurement_dict['xy'][0])
+    vector_y = np.append(vector_y, measurement_dict['ToF_CFD'])
+
+histo, ex, ey = np.histogram2d(vector_x, vector_y / 1e3,
+                               bins = (500, 5000),
+                               range = [[0, 1], [33, 43]])
+
+cax = ax.pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+ax.set_xlabel('Position $x$', size=10)
+ax.set_ylabel('ToF', size=10)
+
+plt.tight_layout(pad=0.5)
+
+# %%
+
+fig, ax = plt.subplots(figsize=(100/inch_to_mm,70/inch_to_mm))
+
+vector_x = np.array([])
+vector_y = np.array([])
+for measurement_number, measurement_dict in dict_data_timing.items():
+    vector_x = np.append(vector_x, measurement_dict['ToF_CFD'])
+    vector_y = np.append(vector_y, measurement_dict['xy'][1])
+
+histo, ex, ey = np.histogram2d(vector_x / 1e3, vector_y,
+                               bins = (5000, 500),
+                               range = [[33, 43], [0, 1]])
+
+cax = ax.pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                    norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+
+ax.set_xlabel('ToF', size=10)
+ax.set_ylabel('Position $y$', size=10)
+
+plt.tight_layout(pad=0.5)
+
+
+# %%
+
+fig, ax = plt.subplots(2, 2, figsize=(150/inch_to_mm,150/inch_to_mm),
+                       gridspec_kw={'width_ratios': [1, 1], 
+                                    'height_ratios': [1, 1]},
+                       sharex='col', sharey='row')
+
+for i in range(1):
+    for j in range(1):
+        ax[i+1, j+1].set_visible(False)
+        ax[i+1, j+1].set_axis_off()
+        ax[i+1, j+1].set_zorder(0)
+
+vector_x = np.array([])
+vector_y = np.array([])
+vector_ToF = np.array([])
+for measurement_number, measurement_dict in dict_data_timing.items():
+    vector_x = np.append(vector_x, measurement_dict['xy'][0])
+    vector_y = np.append(vector_y, measurement_dict['xy'][1])
+    vector_ToF = np.append(vector_ToF, measurement_dict['ToF_CFD'])
+
+histo, ex, ey = np.histogram2d(vector_x, vector_y,
+                               bins = (300, 300),
+                               range = [[0, 1], [0, 1]])
+# cax = ax[0, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+cax = ax[0, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+
+histo, ex, ey = np.histogram2d(vector_x, vector_ToF / 1e3,
+                               bins = (300, 5000),
+                               range = [[0, 1], [33, 43]])
+# cax = ax[1, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+cax = ax[1, 0].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+
+histo, ex, ey = np.histogram2d(vector_ToF / 1e3, vector_y,
+                               bins = (5000, 300),
+                               range = [[33, 43], [0, 1]])
+# cax = ax[0, 1].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+#                           norm=mcolors.Normalize(vmin=0.001), rasterized=True)
+cax = ax[0, 1].pcolormesh(ex, ey, histo.T, cmap=cmap, 
+                          norm=LogNorm(), rasterized=True)
+
+ax[0, 0].set_xlim([0.35, 0.55])
+ax[0, 0].set_ylim([0.4, 0.6])
+
+offs = 0.10
+lower = 42.05
+ax[1, 0].set_ylim(lower, lower + offs)
+ax[0, 1].set_xlim(lower, lower + offs)
+
+ax[1, 0].set_xlabel('Position x')
+ax[0, 0].set_ylabel('Position y')
+ax[0, 1].set_xlabel('ToF (us)')
+ax[1, 0].set_ylabel('ToF (us)')
+
+ax[0, 1].xaxis.set_tick_params(labelbottom=True)
+
+plt.tight_layout(pad=0.5)
+fig.subplots_adjust(hspace=0, wspace=0)
 
 

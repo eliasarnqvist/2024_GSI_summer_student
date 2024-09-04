@@ -251,9 +251,9 @@ for key, value in data_dict.items():
         xx.append(x)
         yy.append(y)
 dd[this_threshold] = {'x':xx, 'y':yy}
-ax.plot(xx, np.array(yy), lw=1.5,
+ax.plot(xx, np.array(yy), lw=1,
         label='Simulation')
-ax.plot(xx, np.array(surrogate_function(xx, *popt)), lw=1.5, 
+ax.plot(xx, np.array(surrogate_function(xx, *popt)), lw=1, 
         label='Surrogate fit', ls='--')
 
 ax.errorbar(comp_df['dt'], comp_df['amp'] - baselines_df['baseline'][0] / 1e3, 

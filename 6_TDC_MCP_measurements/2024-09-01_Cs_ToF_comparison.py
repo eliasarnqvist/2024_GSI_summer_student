@@ -241,35 +241,41 @@ for measurement_number, measurement_dict in dict_data_timing.items():
     vector_3.append(measurement_dict['ToF_CFD'])
     vector_4.append(measurement_dict['ToF'][2])
 
-this_histo, edges = np.histogram(vector_1, bins=3000, range=(41e3, 43e3))
+this_histo, edges = np.histogram(vector_1, bins=4000, range=(41e3, 43e3))
 edges = edges - edges[np.argmax(this_histo)]
+amp_guess = np.max(this_histo)
+pos_guess = edges[int(np.argmax(this_histo))]
 popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
-                       sigma=np.sqrt(this_histo+1), 
-                       p0=[200, 0, 10])
+                       sigma=np.sqrt(np.where(this_histo == 0, 1, this_histo)), 
+                       p0=[amp_guess, pos_guess, 5])
 FWHM = 2.35482 * abs(popt[2])
 # ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
-ax.step(edges[:-1], this_histo, where='post', lw=1.5, 
-        label='Signal E rising \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
+ax.step(edges[:-1], this_histo, where='post', lw=1, 
+        label='Signal E rising \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 1)) + ' ns')
 
-this_histo, edges = np.histogram(vector_2, bins=3000, range=(41e3, 43e3))
+this_histo, edges = np.histogram(vector_2, bins=4000, range=(41e3, 43e3))
 edges = edges - edges[np.argmax(this_histo)]
+amp_guess = np.max(this_histo)
+pos_guess = edges[int(np.argmax(this_histo))]
 popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
-                       sigma=np.sqrt(this_histo+1), 
-                       p0=[200, 0, 10])
+                       sigma=np.sqrt(np.where(this_histo == 0, 1, this_histo)), 
+                       p0=[amp_guess, pos_guess, 5])
 FWHM = 2.35482 * abs(popt[2])
 # ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
-ax.step(edges[:-1], this_histo, where='post', lw=1.5, 
-        label='Signal E falling \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
+ax.step(edges[:-1], this_histo, where='post', lw=1, 
+        label='Signal E falling \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 1)) + ' ns')
 
-this_histo, edges = np.histogram(vector_3, bins=3000, range=(41e3, 43e3))
+this_histo, edges = np.histogram(vector_3, bins=4000, range=(41e3, 43e3))
 edges = edges - edges[np.argmax(this_histo)]
+amp_guess = np.max(this_histo)
+pos_guess = edges[int(np.argmax(this_histo))]
 popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
-                       sigma=np.sqrt(this_histo+1), 
-                       p0=[200, 0, 10])
+                       sigma=np.sqrt(np.where(this_histo == 0, 1, this_histo)), 
+                       p0=[amp_guess, pos_guess, 5])
 FWHM = 2.35482 * abs(popt[2])
 # ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
-ax.step(edges[:-1], this_histo, where='post', lw=1.5, 
-        label='Optimized CFT \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
+ax.step(edges[:-1], this_histo, where='post', lw=1, 
+        label='Optimized CFT \n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 1)) + ' ns')
 
 # this_histo, edges = np.histogram(vector_4, bins=2000, range=(41e3, 43e3))
 # edges = edges - edges[np.argmax(this_histo)]
@@ -281,6 +287,7 @@ ax.legend(frameon=False, loc='upper right', ncols=1, fontsize=10,
           handlelength=1, handletextpad=0.5, columnspacing=0.5)
 
 ax.set_xlim(-20, 50)
+# ax.set_xlim([41.96, 42.16])
 
 # ax.set_yscale('log')
 

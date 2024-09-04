@@ -200,7 +200,7 @@ for sweep_number, sweep_dict in dict_data_sweep.items():
     
     ToF = times_E[0]
     CFDs = np.arange(0, 1.001, 0.01)
-    # CFDs = np.array([0.3, 0.6])
+    # CFDs = np.array([0, 0.5, 1])
     ToFs = CFT(times_E[0], times_E[1], CFDs)
     
     dict_data_timing[measurement_index] = {'ToT':times,
@@ -243,6 +243,7 @@ for i in range(len(CFDs)):
     pos_guess = edges[int(np.argmax(this_histo))]
     
     popt, pcov = curve_fit(gaussian, edges[:-1], this_histo, 
+                           sigma=np.sqrt(np.where(this_histo == 0, 1, this_histo)), 
                            p0=[amp_guess, pos_guess, 0.05])
     ax.plot(edges[:-1], gaussian(edges[:-1], *popt))
     FWHM = 2.35482 * abs(popt[2])

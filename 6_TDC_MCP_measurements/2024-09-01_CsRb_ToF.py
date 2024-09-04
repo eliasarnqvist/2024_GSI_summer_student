@@ -263,9 +263,9 @@ for measurement_number, measurement_dict in dict_data_timing.items():
 
 this_histo, edges = np.histogram(vector_3, bins=20000, range=(33e3, 43e3))
 edges_us = edges / 1e3
-ax[0].step(edges_us[:-1], this_histo, where='post', lw=1.5)
-ax[1].step(edges_us[:-1], this_histo, where='post', lw=1.5)
-ax[2].step(edges_us[:-1], this_histo, where='post', lw=1.5)
+ax[0].step(edges_us[:-1], this_histo, where='post', lw=1)
+ax[1].step(edges_us[:-1], this_histo, where='post', lw=1)
+ax[2].step(edges_us[:-1], this_histo, where='post', lw=1)
 
 ax[0].spines.right.set_visible(False)
 ax[1].spines.left.set_visible(False)
@@ -281,14 +281,14 @@ ax[0].set_xlim(lower, lower + offs)
 low = np.argmin(np.abs(edges_us - lower))
 high = np.argmin(np.abs(edges_us - lower - offs))
 popt, pcov = curve_fit(gaussian, edges_us[low:high], this_histo[low:high], 
-                       sigma=np.sqrt(this_histo[low:high] + 1), 
+                       sigma=np.sqrt(np.where(this_histo[low:high] == 0, 1, this_histo[low:high])), 
                        p0=[500, lower + offs/2, 0.01])
 FWHM = 2.35482 * abs(popt[2]) * 1e3
 position = popt[1]
 print(FWHM)
 # ax[0].plot(edges_us[:-1], gaussian(edges_us[:-1], *popt))
-text = ('$T\!oF = {:.3f}$'.format(round(position, 4)) + r' \textmu s' + 
-        '\n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
+text = ('$T\!oF = {:.3f}$'.format(round(position, 3)) + r' \textmu s' + 
+        '\n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 1)) + ' ns')
 ax[0].text(0.42, 0.5, text, ha='left', va='center', transform=ax[0].transAxes)
 
 lower = 33.793
@@ -296,14 +296,14 @@ ax[1].set_xlim(lower, lower + offs)
 low = np.argmin(np.abs(edges_us - lower))
 high = np.argmin(np.abs(edges_us - lower - offs))
 popt, pcov = curve_fit(gaussian, edges_us[low:high], this_histo[low:high], 
-                       sigma=np.sqrt(this_histo[low:high] + 1), 
+                       sigma=np.sqrt(np.where(this_histo[low:high] == 0, 1, this_histo[low:high])), 
                        p0=[500, lower + offs/2, 0.01])
 FWHM = 2.35482 * abs(popt[2]) * 1e3
 position = popt[1]
 print(FWHM)
 # ax[1].plot(edges_us[:-1], gaussian(edges_us[:-1], *popt))
-text = ('$T\!oF = {:.3f}$'.format(round(position, 4)) + r' \textmu s' + 
-        '\n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
+text = ('$T\!oF = {:.3f}$'.format(round(position, 3)) + r' \textmu s' + 
+        '\n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 1)) + ' ns')
 ax[1].text(0.32, 0.2, text, ha='left', va='center', transform=ax[1].transAxes)
 
 lower = 42.065
@@ -311,14 +311,14 @@ ax[2].set_xlim(lower, lower + offs)
 low = np.argmin(np.abs(edges_us - lower))
 high = np.argmin(np.abs(edges_us - lower - offs))
 popt, pcov = curve_fit(gaussian, edges_us[low:high], this_histo[low:high], 
-                       sigma=np.sqrt(this_histo[low:high] + 1), 
+                       sigma=np.sqrt(np.where(this_histo[low:high] == 0, 1, this_histo[low:high])), 
                        p0=[500, lower + offs/2, 0.01])
 FWHM = 2.35482 * abs(popt[2]) * 1e3
 position = popt[1]
 print(FWHM)
 # ax[2].plot(edges_us[:-1], gaussian(edges_us[:-1], *popt))
-text = ('$T\!oF = {:.3f}$'.format(round(position, 4)) + r' \textmu s' + 
-        '\n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 2)) + ' ns')
+text = ('$T\!oF = {:.3f}$'.format(round(position, 3)) + r' \textmu s' + 
+        '\n$F\!W\!H\!M = {:.1f}$'.format(round(FWHM, 1)) + ' ns')
 ax[2].text(0.3, 0.55, text, ha='left', va='center', transform=ax[2].transAxes)
 
 ax[0].set_zorder(3)

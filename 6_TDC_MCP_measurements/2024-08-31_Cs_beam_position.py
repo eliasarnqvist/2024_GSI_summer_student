@@ -251,7 +251,7 @@ plt.tight_layout(pad=0.5)
 cmap = plt.cm.viridis
 cmap.set_under('white')
 
-fig, ax = plt.subplots(figsize=(73/inch_to_mm,55/inch_to_mm))
+fig, ax = plt.subplots(figsize=(73/inch_to_mm,50/inch_to_mm))
 
 vector_x = []
 vector_y = []
@@ -277,10 +277,10 @@ ax.set_xlim([0.41, 0.51])
 ax.set_ylim([0.45, 0.55])
 ax.set_aspect('equal')
 
-ax.set_xlabel('Position $x$', size=10)
-ax.set_ylabel('Position $y$', size=10)
+ax.set_xlabel('Position $x$ (0--1)', size=10)
+ax.set_ylabel('Position $y$ (0--1)', size=10)
 
-plt.tight_layout(pad=0.8)
+plt.tight_layout(pad=0.2)
 # fig.subplots_adjust(hspace=0, wspace=0)
 
 save_name = 'beam_position_center'

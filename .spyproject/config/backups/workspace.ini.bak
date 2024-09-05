@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['1_fluctuation_investivation\\2024-07-30_plot_mass_spectrum.py', '5_TDC_MCP_tests\\2024-08-14_read_binary_test-2.py', '4_Oscilloscope\\2024-08-15_oscilloscope_analyze_wf.py', '3_LTSpice_simulations\\2024-08-15_LTSpice_tot-to-amp.py', '5_TDC_MCP_tests\\2024-08-15_read_binary_test-3.py']
+recent_files = ['6_TDC_MCP_measurements\\2024-09-02_CsRb_ToF_position.py', '6_TDC_MCP_measurements\\2024-09-03_Cs_ToF_position.py', '6_TDC_MCP_measurements\\2024-09-01_CsRb_ToF.py', '6_TDC_MCP_measurements\\2024-08-31_Cs_beam_position.py', '3_LTSpice_simulations\\2024-08-31_LTSpice_tot-to-amp_comparison.py', '6_TDC_MCP_measurements\\2024-09-05_Cs_beam_position_presentation.py']
 
 [main]
 version = 0.2.0

@@ -315,7 +315,7 @@ plt.tight_layout(pad=0.5)
 
 # %%
 
-fig, ax = plt.subplots(4, 4, figsize=(150/inch_to_mm,150/inch_to_mm),
+fig, ax = plt.subplots(4, 4, figsize=(120/inch_to_mm,100/inch_to_mm),
                        gridspec_kw={'width_ratios': [3, 1, 1, 1], 
                                     'height_ratios': [3, 1, 1, 1]},
                        sharex='col', sharey='row')
@@ -397,7 +397,13 @@ ax[0, 1].xaxis.set_tick_params(labelbottom=True)
 ax[0, 2].xaxis.set_tick_params(labelbottom=True)
 ax[0, 3].xaxis.set_tick_params(labelbottom=True)
 
+ax[1, 0].invert_yaxis()
+ax[2, 0].invert_yaxis()
+ax[3, 0].invert_yaxis()
+
 plt.tight_layout(pad=0.5)
 fig.subplots_adjust(hspace=0, wspace=0)
 
-
+save_name = 'ToF_position_CsRb'
+plt.savefig(f'figures\\{save_name}.jpg', dpi=300)
+plt.savefig(f'figures\\{save_name}.pdf')
